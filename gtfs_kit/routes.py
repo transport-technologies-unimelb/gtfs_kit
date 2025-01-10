@@ -727,8 +727,11 @@ def get_routes(
             final_cols = f.columns.tolist() + ["geometry"]
 
         def merge_lines(group):
-            d = {}
-            d["geometry"] = so.linemerge(group["geometry"].tolist())
+            d = {"geometry": None}
+            geometries = group["geometry"].tolist()
+            if len(geometries) > 0:
+                d["geometry"] = so.linemerge(geometries)
+
             return pd.Series(d)
 
         f = (
