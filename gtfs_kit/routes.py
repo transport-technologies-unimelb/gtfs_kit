@@ -729,6 +729,7 @@ def get_routes(
         def merge_lines(group):
             d = {"geometry": None}
             geometries = group["geometry"].tolist()
+            geometries = [x for x in geometries if x is not None]
             if len(geometries) > 0:
                 d["geometry"] = so.linemerge(geometries)
 
