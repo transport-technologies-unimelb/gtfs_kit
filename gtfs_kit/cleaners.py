@@ -197,7 +197,7 @@ def clean_route_short_names(feed: "Feed") -> "Feed":
 
 
 def build_aggregate_routes_dict(
-    routes: pd.DataFrame, by: str = "route_short_name", route_id_prefix: str = "route_"
+    routes: pd.DataFrame, by: str = "route_short_name", route_id_prefix: str = "route_", use_by_col_as_column_name=False
 ) -> dict[str, str]:
     """
     Given a DataFrame of routes, group the routes by route short name, say,
@@ -218,7 +218,10 @@ def build_aggregate_routes_dict(
     nid_by_oid = dict()
     i = 0
     for col, group in routes.groupby(by):
-        d = {oid: nids[i] for oid in group.route_id.values}
+        nid = nids[i]
+        if use_by_col_as_column_name:
+            nid = col
+        d = {oid: nid for oid in group.route_id.values}
         nid_by_oid.update(d)
         i += 1
 
@@ -226,7 +229,7 @@ def build_aggregate_routes_dict(
 
 
 def aggregate_routes(
-    feed: "Feed", by: str = "route_short_name", route_id_prefix: str = "route_"
+    feed: "Feed", by: str = "route_short_name", route_id_prefix: str = "route_", use_by_col_as_column_name=False
 ) -> "Feed":
     """
     Aggregate routes by route short name, say, and assign new route IDs using the
@@ -242,7 +245,7 @@ def aggregate_routes(
 
     # Make new route IDs
     routes = feed.routes
-    nid_by_oid = build_aggregate_routes_dict(routes, by, route_id_prefix)
+    nid_by_oid = build_aggregate_routes_dict(routes, by, route_id_prefix, use_by_col_as_column_name=use_by_col_as_column_name)
 
     # Update route IDs in routes
     routes["route_id"] = routes.route_id.map(lambda x: nid_by_oid[x])
